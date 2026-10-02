@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "Complaint": {
+      "title": "Complaint",
+      "description": "Okul içi şikayet, öneri ve talep kaydı",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Şikayet başlığı",
+          "maxLength": 150
+        },
+        "description": {
+          "type": "string",
+          "description": "Detaylı açıklama",
+          "maxLength": 2000
+        },
+        "category": {
+          "type": "string",
+          "description": "Şikayet kategorisi"
+        },
+        "status": {
+          "type": "string",
+          "description": "Şikayet durumu",
+          "enum": ["İnceleniyor", "Çözüm Aşamasında", "Çözüldü", "Reddedildi"]
+        },
+        "author": {
+          "type": "string",
+          "description": "Bildiren kişi adı veya Anonim",
+          "maxLength": 100
+        },
+        "authorEmail": {
+          "type": "string",
+          "description": "Bildirim gönderilecek e-posta adresi",
+          "maxLength": 150
+        },
+        "notificationsEnabled": {
+          "type": "boolean",
+          "description": "E-posta bildirimleri aktif mi"
+        },
+        "isAnonymous": {
+          "type": "boolean",
+          "description": "Anonimlik durumu"
+        },
+        "date": {
+          "type": "string",
+          "description": "Olay / bildirim tarihi"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Görsel kanıt veya fotoğraf"
+        },
+        "upvotes": {
+          "type": "number",
+          "description": "Toplam destek oyu sayısı"
+        },
+        "comments": {
+          "type": "array",
+          "description": "Yapılan yorumlar"
+        },
+        "adminNote": {
+          "type": "string",
+          "description": "Okul idaresi resmi yanıtı",
+          "maxLength": 1000
+        },
+        "adminUpdatedAt": {
+          "type": "string",
+          "description": "İdare yanıtının güncellendiği tarih"
+        }
+      },
+      "required": ["title", "description", "category", "status", "author", "isAnonymous", "date", "upvotes"]
+    }
+  },
+  "firestore": {
+    "/complaints/{complaintId}": {
+      "schema": {
+        "$ref": "#/entities/Complaint"
+      },
+      "description": "Tüm okul şikayet ve taleplerinin depolandığı ana koleksiyon"
+    }
+  }
+}

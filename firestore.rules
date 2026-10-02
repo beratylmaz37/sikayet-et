@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidStatus(status) {
+      return status in ['İnceleniyor', 'Çözüm Aşamasında', 'Çözüldü', 'Reddedildi'];
+    }
+
+    function isValidComplaint(data) {
+      return data.title is string && data.title.size() >= 3 && data.title.size() <= 150
+        && data.description is string && data.description.size() >= 5 && data.description.size() <= 2000
+        && data.category is string && data.category.size() <= 50
+        && isValidStatus(data.status)
+        && data.author is string && data.author.size() <= 100
+        && data.isAnonymous is bool
+        && data.date is string && data.date.size() <= 30
+        && data.upvotes is number && data.upvotes >= 0
+        && (!('authorEmail' in data) || (data.authorEmail is string && data.authorEmail.size() <= 150))
+        && (!('notificationsEnabled' in data) || data.notificationsEnabled is bool)
+        && (!('adminNote' in data) || (data.adminNote is string && data.adminNote.size() <= 2000))
+        && (!('adminUpdatedAt' in data) || (data.adminUpdatedAt is string && data.adminUpdatedAt.size() <= 50))
+        && (!('comments' in data) || (data.comments is list && data.comments.size() <= 300));
+    }
+
+    match /complaints/{complaintId} {
+      allow get: if isValidId(complaintId);
+      allow list: if true;
+      allow create: if isValidId(complaintId) && isValidComplaint(incoming());
+      allow update: if isValidId(complaintId) && isValidComplaint(incoming());
+      allow delete: if isValidId(complaintId);
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
